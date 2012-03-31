@@ -19,19 +19,16 @@ window.aceEditor = ace.edit("editor");
 window.aceEditor.setTheme("ace/theme/twilight");
 
 // set mode to javascript
-var JavaScriptMode = require("ace/mode/javascript").Mode;
-window.aceEditor.getSession().setMode(new JavaScriptMode());
+var CoffeeScriptMode = require("ace/mode/coffee").Mode;
+window.aceEditor.getSession().setMode(new CoffeeScriptMode());
 
 function redrawSvg() {
-	// clear the window
-	$('svg').empty();
+	$('svg').empty(); // clear the window
 
 	try {
-		// get the ide code
-		var thisCode = window.aceEditor.getSession().getValue();
-
-		// run it
-		eval(thisCode);
+		var code = window.aceEditor.getSession().getValue();
+        var compiledCode = CoffeeScript.compile(code, { 'bare': 'on' });
+		eval(compiledCode);
 	}
 	catch (error) {
         console.log(error);
@@ -42,14 +39,13 @@ function redrawSvg() {
 // redraw svg when we update our code or resize the window
 window.aceEditor.getSession().on('change', redrawSvg);
 $(window).on('resize', function() {
-
 	setSvgDimensions();
 	redrawSvg();
 });
 
 if (window.location.hash) {
     var filename = window.location.hash.substring(1);
-    d3.text('examples/' + filename +'.js', function(data) {
+    d3.text('examples/' + filename +'.coffee', function(data) {
         window.aceEditor.getSession().setValue(data);
     });
 }
